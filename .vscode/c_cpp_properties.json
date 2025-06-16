@@ -1,21 +1,22 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Win32-MinGW-w64",
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/include/nlohmann",
-                "C:/MinGW/include/**",
-                "C:/MinGW/include",
-                "C:/MinGW/lib/gcc/mingw32/*/include/c++",
-                "C:/MinGW/lib/gcc/mingw32/*/include/c++/mingw32",
-                "C:/MinGW/lib/gcc/mingw32/*/include/c++/backward",
-                "C:/MinGW/lib/gcc/mingw32/*/include",
-                "C:/MinGW/mingw32/include",
-                "C:/Program Files (x86)/Windows Kits/10/Include/*/ucrt",
-                "C:/Program Files (x86)/Windows Kits/10/Include/*/um",
-                "C:/Program Files (x86)/Windows Kits/10/Include/*/shared",
+                "C:/mingw64/include/**",
+                "C:/mingw64/include",
+                "C:/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++",
+                "C:/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++/x86_64-w64-mingw32",
+                "C:/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++/backward",
+                "C:/mingw64/lib/gcc/x86_64-w64-mingw32/*/include",
+                "C:/mingw64/x86_64-w64-mingw32/include",
+                "C:/msys64/mingw64/include/**",
+                "C:/msys64/mingw64/include",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++/x86_64-w64-mingw32",
                 "C:/ScopePaymentApi/include"
             ],
             "defines": [
@@ -25,21 +26,64 @@
                 "WIN32",
                 "_WIN32_WINNT=0x0601",
                 "__cplusplus=201703L",
-                "WINVER=0x0601"
+                "WINVER=0x0601",
+                "MINGW_W64",
+                "_GNU_SOURCE"
             ],
             "windowsSdkVersion": "10.0.22000.0",
-            "compilerPath": "C:/MinGW/bin/g++.exe",
+            "compilerPath": "C:/mingw64/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x86",
+            "intelliSenseMode": "gcc-x64",
             "compilerArgs": [
                 "-std=c++17",
-                "-pthread",
                 "-Wall",
                 "-Wextra",
                 "-static-libgcc",
                 "-static-libstdc++",
-                "-mthreads"
+                "-DWIN32_LEAN_AND_MEAN"
+            ],
+            "configurationProvider": "ms-vscode.cpptools"
+        },
+        {
+            "name": "Win32-MSYS2",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/nlohmann",
+                "C:/msys64/mingw64/include/**",
+                "C:/msys64/mingw64/include",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++/x86_64-w64-mingw32",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include/c++/backward",
+                "C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/*/include",
+                "C:/msys64/mingw64/x86_64-w64-mingw32/include",
+                "C:/ScopePaymentApi/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "WIN32",
+                "_WIN32_WINNT=0x0601",
+                "__cplusplus=201703L",
+                "WINVER=0x0601",
+                "MINGW_W64",
+                "MSYS2",
+                "_GNU_SOURCE"
+            ],
+            "windowsSdkVersion": "10.0.22000.0",
+            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "compilerArgs": [
+                "-std=c++17",
+                "-Wall",
+                "-Wextra",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-DWIN32_LEAN_AND_MEAN"
             ],
             "configurationProvider": "ms-vscode.cpptools"
         }

@@ -2,47 +2,55 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "C/C++: g++.exe build active file",
-            "command": "C:\\MinGW\\bin\\g++.exe",
+            "label": "Build Modern Scope Wrapper",
+            "type": "shell",
+            "command": "g++",
             "args": [
-                "-fdiagnostics-color=always",
-                "-g",
                 "-std=c++17",
-                "-Wall",
-                "-Wextra",
-                "-mthreads",
-                "-I${workspaceFolder}/include",
+                "-O2",
+                "-DNDEBUG",
+                "-DWIN32_LEAN_AND_MEAN",
+                "-I./include",
                 "-static-libgcc",
                 "-static-libstdc++",
-                "${file}",
+                "-Wall",
+                "-Wextra",
                 "-o",
-                "${workspaceFolder}/bin/${fileBasenameNoExtension}.exe"
+                "./bin/scope-wrapper-modern.exe",
+                "./src/main.cpp"
             ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Task generated for MinGW in C:\\MinGW\\bin"
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         },
         {
-            "label": "Build Scope Wrapper",
+            "label": "Build Debug Modern Scope Wrapper",
             "type": "shell",
-            "command": "C:\\MinGW\\bin\\g++.exe",
+            "command": "g++",
             "args": [
                 "-std=c++17",
-                "-mthreads",
-                "-O2",
-                "-DNDEBUG",
+                "-g",
+                "-O0",
+                "-DDEBUG",
+                "-DWIN32_LEAN_AND_MEAN",
                 "-I./include",
                 "-static-libgcc",
                 "-static-libstdc++",
+                "-Wall",
+                "-Wextra",
                 "-o",
-                "./bin/scope-wrapper.exe",
+                "./bin/scope-wrapper-debug.exe",
                 "./src/main.cpp"
             ],
             "group": "build",
@@ -58,11 +66,62 @@
             }
         },
         {
-            "label": "Test MinGW Installation",
+            "label": "Test Modern Features",
             "type": "shell",
-            "command": "C:\\MinGW\\bin\\g++.exe",
+            "command": "cmd",
             "args": [
-                "--version"
+                "/c",
+                "echo Testando C++17 moderno... && echo #include ^<iostream^> > test_modern_full.cpp && echo #include ^<memory^> >> test_modern_full.cpp && echo #include ^<thread^> >> test_modern_full.cpp && echo #include ^<mutex^> >> test_modern_full.cpp && echo #include ^<chrono^> >> test_modern_full.cpp && echo #include ^<atomic^> >> test_modern_full.cpp && echo std::mutex mtx; >> test_modern_full.cpp && echo std::atomic^<int^> counter{0}; >> test_modern_full.cpp && echo void worker() { >> test_modern_full.cpp && echo     for(int i = 0; i ^< 100; ++i) { >> test_modern_full.cpp && echo         std::lock_guard^<std::mutex^> lock(mtx); >> test_modern_full.cpp && echo         counter++; >> test_modern_full.cpp && echo     } >> test_modern_full.cpp && echo } >> test_modern_full.cpp && echo int main() { >> test_modern_full.cpp && echo     auto start = std::chrono::steady_clock::now(); >> test_modern_full.cpp && echo     std::thread t1(worker); >> test_modern_full.cpp && echo     std::thread t2(worker); >> test_modern_full.cpp && echo     t1.join(); t2.join(); >> test_modern_full.cpp && echo     auto end = std::chrono::steady_clock::now(); >> test_modern_full.cpp && echo     auto duration = std::chrono::duration_cast^<std::chrono::milliseconds^>(end - start); >> test_modern_full.cpp && echo     std::cout ^<^< \"Counter: \" ^<^< counter.load() ^<^< \", Time: \" ^<^< duration.count() ^<^< \"ms\" ^<^< std::endl; >> test_modern_full.cpp && echo     return 0; >> test_modern_full.cpp && echo } >> test_modern_full.cpp && g++ -std=c++17 -pthread test_modern_full.cpp -o test_modern_full.exe && test_modern_full.exe && del test_modern_full.cpp test_modern_full.exe && echo. && echo ✓ Todos os recursos C++17 funcionando perfeitamente!"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Test Scope Wrapper Modern",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "echo {\"command\":\"status\"} | bin\\scope-wrapper-modern.exe"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Build Modern Scope Wrapper"
+        },
+        {
+            "label": "Performance Test",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "echo Testando performance... && echo {\"command\":\"status\"} | bin\\scope-wrapper-modern.exe && echo. && echo Testando múltiplas chamadas... && for /L %i in (1,1,5) do @(echo {\"command\":\"status\"} | bin\\scope-wrapper-modern.exe > nul && echo Teste %i OK)"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Build Modern Scope Wrapper"
+        },
+        {
+            "label": "Clean All",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "if exist bin\\*.exe del /Q bin\\*.exe && echo Build limpo!"
             ],
             "group": "build",
             "presentation": {
@@ -73,12 +132,23 @@
             }
         },
         {
+            "label": "Setup MinGW-w64 Project",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Setup Project Structure",
+                "Download nlohmann/json",
+                "Test Modern Features",
+                "Build Modern Scope Wrapper",
+                "Test Scope Wrapper Modern"
+            ]
+        },
+        {
             "label": "Setup Project Structure",
             "type": "shell",
             "command": "cmd",
             "args": [
                 "/c",
-                "if not exist bin mkdir bin && if not exist include mkdir include && if not exist include\\nlohmann mkdir include\\nlohmann && if not exist lib mkdir lib && if not exist logs mkdir logs && if not exist src mkdir src && echo Estrutura do projeto criada com sucesso!"
+                "if not exist bin mkdir bin && if not exist include mkdir include && if not exist include\\nlohmann mkdir include\\nlohmann && if not exist lib mkdir lib && if not exist logs mkdir logs && if not exist src mkdir src && echo ✓ Estrutura do projeto criada!"
             ],
             "group": "build",
             "presentation": {
@@ -94,7 +164,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "try { Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.2/json.hpp' -OutFile './include/nlohmann/json.hpp'; Write-Host 'nlohmann/json baixado com sucesso!' -ForegroundColor Green } catch { Write-Host 'Erro no download. Usando fallback JSON.' -ForegroundColor Yellow }"
+                "try { Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.2/json.hpp' -OutFile './include/nlohmann/json.hpp'; Write-Host '✓ nlohmann/json baixado com sucesso!' -ForegroundColor Green } catch { Write-Host '⚠ Erro no download, usando SimpleJson' -ForegroundColor Yellow }"
             ],
             "group": "build",
             "presentation": {
@@ -103,39 +173,6 @@
                 "focus": false,
                 "panel": "shared"
             }
-        },
-        {
-            "label": "Test C++ Features",
-            "type": "shell",
-            "command": "C:\\MinGW\\bin\\g++.exe",
-            "args": [
-                "-std=c++17",
-                "-mthreads",
-                "-x", "c++",
-                "-",
-                "-o", "./bin/test_features.exe"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}",
-                "input": "#include <iostream>\n#include <mutex>\n#include <thread>\n#include <chrono>\nint main() {\n    std::mutex m;\n    std::lock_guard<std::mutex> lock(m);\n    std::this_thread::sleep_for(std::chrono::milliseconds(1));\n    std::cout << \"C++17 features OK!\" << std::endl;\n    return 0;\n}"
-            },
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Full Build and Test",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Setup Project Structure",
-                "Test MinGW Installation", 
-                "Test C++ Features",
-                "Build Scope Wrapper"
-            ]
         }
     ]
 }

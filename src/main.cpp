@@ -1,10 +1,5 @@
-// main.cpp - Versão corrigida com headers apropriados
-// Compile com: g++ -std=c++17 -I./include -o scope-wrapper.exe main.cpp
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-// Headers C++ padrão
 #include <iostream>
 #include <string>
 #include <memory>
@@ -16,28 +11,18 @@
 #include <vector>
 #include <exception>
 #include <stdexcept>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
-// Headers C++11/17 - verificar disponibilidade
-#if __cplusplus >= 201103L
-    #include <chrono>
-    #include <thread>
-    #include <mutex>
-    #include <condition_variable>
-    #define CPP11_AVAILABLE 1
-#else
-    #define CPP11_AVAILABLE 0
-    // Fallback para versões antigas
-    #include <ctime>
-#endif
-
-// Para JSON, incluir nlohmann/json ou implementar parser simples
-// Se não tiver nlohmann/json, usar implementação básica abaixo
 #ifdef NLOHMANN_JSON_HPP
     #include <nlohmann/json.hpp>
     using json = nlohmann::json;
 #else
-    // Implementação JSON básica para compilar sem dependências externas
     #include "simple_json.hpp"
+    using json = SimpleJson;
 #endif
 
 // === Definições de Tipos da SCOPEAPI ===
@@ -49,30 +34,30 @@ typedef const char* LPCSTR;
 
 // Estrutura de coleta conforme documentação oficial
 typedef struct _stPARAM_COLETA {
-    WORD Bandeira;          // Código da bandeira
-    WORD FormatoDado;       // Formato do dado a ser coletado
-    WORD HabTeclas;         // Teclas habilitadas
-    char MsgOp1[17];        // Mensagem linha 1 do operador
-    char MsgOp2[17];        // Mensagem linha 2 do operador
-    char MsgCl1[17];        // Mensagem linha 1 do cliente
-    char MsgCl2[17];        // Mensagem linha 2 do cliente
-    WORD TamMinDado;        // Tamanho mínimo do dado
-    WORD TamMaxDado;        // Tamanho máximo do dado
-    WORD TamMinCartao;      // Tamanho mínimo do cartão
-    WORD TamMaxCartao;      // Tamanho máximo do cartão
-    char CodSeguranca;      // Código de segurança
-    char Reservado[13];     // Reservado para uso futuro
+    WORD Bandeira;          
+    WORD FormatoDado;       
+    WORD HabTeclas;         
+    char MsgOp1[17];        
+    char MsgOp2[17];        
+    char MsgCl1[17];        
+    char MsgCl2[17];        
+    WORD TamMinDado;        
+    WORD TamMaxDado;        
+    WORD TamMinCartao;      
+    WORD TamMaxCartao;      
+    char CodSeguranca;      
+    char Reservado[13];     
 } stPARAM_COLETA, *ptPARAM_COLETA;
 
 // Estrutura de coleta estendida
 typedef struct _stPARAM_COLETA_EXT {
-    BYTE FormatoDado;       // Formato do dado
-    BYTE HabTeclas;         // Teclas habilitadas
-    char MsgOp1[17];        // Mensagem operador linha 1
-    char MsgCl1[17];        // Mensagem cliente linha 1
-    WORD TamMinDado;        // Tamanho mínimo
-    WORD TamMaxDado;        // Tamanho máximo
-    char Reservado[32];     // Reservado
+    BYTE FormatoDado;       
+    BYTE HabTeclas;         
+    char MsgOp1[17];        
+    char MsgCl1[17];        
+    WORD TamMinDado;        
+    WORD TamMaxDado;        
+    char Reservado[32];     
 } stPARAM_COLETA_EXT, *ptPARAM_COLETA_EXT;
 
 // Enumeração de ações
@@ -112,111 +97,51 @@ typedef LONG (__stdcall *PFN_ScopeSetAplColeta)(void);
 typedef LONG (__stdcall *PFN_ScopeObtemHandle)(WORD Tipo);
 typedef LONG (__stdcall *PFN_ScopeObtemCampoExt2)(LONG Handle, LONG Masc1, LONG Masc2, LONG Masc3, char FieldSeparator, LPSTR Buffer);
 
-// === Implementação JSON Simples (caso não tenha nlohmann/json) ===
-#ifndef NLOHMANN_JSON_HPP
-class SimpleJson {
+// === Utilitários Modernos ===
+class Logger {
 private:
-    std::map<std::string, std::string> data;
+    std::mutex logMutex;
+    
+    std::string getCurrentTimestamp() const {
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now.time_since_epoch()) % 1000;
+        
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&time_t), "%Y-%m-%d %H:%M:%S");
+        ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+        return ss.str();
+    }
     
 public:
-    SimpleJson() = default;
-    
-    void set(const std::string& key, const std::string& value) {
-        data[key] = value;
+    void info(const std::string& message) {
+        std::lock_guard<std::mutex> lock(logMutex);
+        std::cerr << "[INFO] " << getCurrentTimestamp() << " - " << message << std::endl;
     }
     
-    void set(const std::string& key, int value) {
-        data[key] = std::to_string(value);
+    void error(const std::string& message) {
+        std::lock_guard<std::mutex> lock(logMutex);
+        std::cerr << "[ERROR] " << getCurrentTimestamp() << " - " << message << std::endl;
     }
     
-    void set(const std::string& key, bool value) {
-        data[key] = value ? "true" : "false";
-    }
-    
-    std::string get(const std::string& key, const std::string& defaultValue = "") const {
-        auto it = data.find(key);
-        return (it != data.end()) ? it->second : defaultValue;
-    }
-    
-    int getInt(const std::string& key, int defaultValue = 0) const {
-        auto value = get(key);
-        return value.empty() ? defaultValue : std::atoi(value.c_str());
-    }
-    
-    double getDouble(const std::string& key, double defaultValue = 0.0) const {
-        auto value = get(key);
-        return value.empty() ? defaultValue : std::atof(value.c_str());
-    }
-    
-    bool getBool(const std::string& key, bool defaultValue = false) const {
-        auto value = get(key);
-        return value == "true";
-    }
-    
-    std::string toString() const {
-        std::ostringstream oss;
-        oss << "{";
-        bool first = true;
-        for (const auto& pair : data) {
-            if (!first) oss << ",";
-            oss << "\"" << pair.first << "\":\"" << pair.second << "\"";
-            first = false;
-        }
-        oss << "}";
-        return oss.str();
-    }
-    
-    static SimpleJson parse(const std::string& jsonStr) {
-        SimpleJson json;
-        // Parser básico - implementação simplificada
-        size_t start = jsonStr.find('{');
-        size_t end = jsonStr.rfind('}');
-        
-        if (start == std::string::npos || end == std::string::npos) {
-            return json;
-        }
-        
-        std::string content = jsonStr.substr(start + 1, end - start - 1);
-        std::istringstream iss(content);
-        std::string token;
-        
-        while (std::getline(iss, token, ',')) {
-            size_t colonPos = token.find(':');
-            if (colonPos != std::string::npos) {
-                std::string key = token.substr(0, colonPos);
-                std::string value = token.substr(colonPos + 1);
-                
-                // Remove aspas e espaços
-                key.erase(0, key.find_first_not_of(" \t\""));
-                key.erase(key.find_last_not_of(" \t\"") + 1);
-                value.erase(0, value.find_first_not_of(" \t\""));
-                value.erase(value.find_last_not_of(" \t\"") + 1);
-                
-                json.set(key, value);
-            }
-        }
-        
-        return json;
+    void debug(const std::string& message) {
+        std::lock_guard<std::mutex> lock(logMutex);
+        std::cerr << "[DEBUG] " << getCurrentTimestamp() << " - " << message << std::endl;
     }
 };
 
-using json = SimpleJson;
-#endif
+// Instância global do logger
+Logger logger;
 
-// === Classe ScopeWrapper ===
+// === Classe ScopeWrapper Moderna ===
 class ScopeWrapper {
 private:
     HMODULE hScopeDLL = nullptr;
-    bool isInitialized = false;
-    
-#if CPP11_AVAILABLE
+    std::atomic<bool> isInitialized{false};
+    std::atomic<bool> transactionActive{false};
     std::mutex transactionMutex;
-    bool transactionActive = false;
-#else
-    // Fallback sem mutex para compiladores antigos
-    bool transactionActive = false;
-    CRITICAL_SECTION criticalSection;
-#endif
+    std::condition_variable transactionCV;
     
     // Ponteiros para funções
     PFN_ScopeOpen pfnScopeOpen = nullptr;
@@ -236,26 +161,23 @@ private:
     PFN_ScopeObtemCampoExt2 pfnScopeObtemCampoExt2 = nullptr;
 
 public:
-    ScopeWrapper() {
-#if !CPP11_AVAILABLE
-        InitializeCriticalSection(&criticalSection);
-#endif
-    }
+    ScopeWrapper() = default;
     
     ~ScopeWrapper() {
         cleanup();
-#if !CPP11_AVAILABLE
-        DeleteCriticalSection(&criticalSection);
-#endif
     }
 
     bool initialize(const std::string& dllPath = ".") {
-        if (isInitialized) return true;
+        if (isInitialized.load()) return true;
 
+        std::lock_guard<std::mutex> lock(transactionMutex);
+        
         try {
+            logger.info("Inicializando ScopeWrapper...");
+            
             // Definir diretório da DLL
             if (!SetDllDirectoryA(dllPath.c_str())) {
-                logError("Erro ao definir diretório da DLL: " + dllPath);
+                logger.error("Erro ao definir diretório da DLL: " + dllPath);
             }
             
             // Carregar DLL
@@ -263,9 +185,11 @@ public:
             
             if (!hScopeDLL) {
                 DWORD error = GetLastError();
-                logError("Erro ao carregar SCOPEAPI.DLL. Código: " + std::to_string(error));
+                logger.error("Erro ao carregar SCOPEAPI.DLL. Código: " + std::to_string(error));
                 return false;
             }
+
+            logger.info("SCOPEAPI.DLL carregada com sucesso");
 
             // Carregar todas as funções
             if (!loadFunctions()) {
@@ -273,74 +197,65 @@ public:
                 return false;
             }
 
-            isInitialized = true;
-            logInfo("ScopeWrapper inicializado com sucesso");
+            isInitialized.store(true);
+            logger.info("ScopeWrapper inicializado com sucesso");
             return true;
 
         } catch (const std::exception& e) {
-            logError("Exceção durante inicialização: " + std::string(e.what()));
+            logger.error("Exceção durante inicialização: " + std::string(e.what()));
             cleanup();
             return false;
         }
     }
 
     json processTransaction(const json& request) {
-#if CPP11_AVAILABLE
-        std::lock_guard<std::mutex> lock(transactionMutex);
-#else
-        EnterCriticalSection(&criticalSection);
-#endif
+        std::unique_lock<std::mutex> lock(transactionMutex);
         
-        if (transactionActive) {
-#if !CPP11_AVAILABLE
-            LeaveCriticalSection(&criticalSection);
-#endif
-            return createErrorResponse("Transação já em andamento");
-        }
-
-        if (!isInitialized) {
-#if !CPP11_AVAILABLE
-            LeaveCriticalSection(&criticalSection);
-#endif
+        // Aguardar se há transação ativa
+        transactionCV.wait(lock, [this] { return !transactionActive.load(); });
+        
+        if (!isInitialized.load()) {
             return createErrorResponse("Wrapper não inicializado");
         }
 
-        transactionActive = true;
+        transactionActive.store(true);
         
         try {
-            json response = executeTransaction(request);
-            transactionActive = false;
-#if !CPP11_AVAILABLE
-            LeaveCriticalSection(&criticalSection);
-#endif
-            return response;
+            auto result = executeTransaction(request);
+            transactionActive.store(false);
+            transactionCV.notify_all();
+            return result;
             
         } catch (const std::exception& e) {
-            transactionActive = false;
-#if !CPP11_AVAILABLE
-            LeaveCriticalSection(&criticalSection);
-#endif
+            transactionActive.store(false);
+            transactionCV.notify_all();
             return createErrorResponse("Erro durante transação: " + std::string(e.what()));
         }
     }
 
-    json getStatus() {
+    json getStatus() const {
         json status;
-        status.set("initialized", isInitialized);
-        status.set("transactionActive", transactionActive);
+        status.set("initialized", isInitialized.load());
+        status.set("transactionActive", transactionActive.load());
         status.set("timestamp", getCurrentTimestamp());
+        status.set("version", "modern-mingw-w64");
+        status.set("threading", "std::mutex");
         return status;
     }
 
 private:
     bool loadFunctions() {
-        // Macro para carregar funções com verificação de erro
+        // Macro para carregar funções com logging detalhado
         #define LOAD_FUNCTION(var, name) \
             var = (PFN_##name)GetProcAddress(hScopeDLL, #name); \
             if (!var) { \
-                logError("Erro ao carregar função: " #name); \
+                logger.error("Erro ao carregar função: " #name); \
                 return false; \
+            } else { \
+                logger.debug("Função carregada: " #name); \
             }
+
+        logger.info("Carregando funções da SCOPEAPI...");
 
         LOAD_FUNCTION(pfnScopeOpen, ScopeOpen);
         LOAD_FUNCTION(pfnScopeClose, ScopeClose);
@@ -359,15 +274,13 @@ private:
         LOAD_FUNCTION(pfnScopeObtemCampoExt2, ScopeObtemCampoExt2);
 
         #undef LOAD_FUNCTION
+        
+        logger.info("Todas as funções carregadas com sucesso");
         return true;
     }
 
     json executeTransaction(const json& request) {
-#if CPP11_AVAILABLE
         auto startTime = std::chrono::steady_clock::now();
-#else
-        DWORD startTime = GetTickCount();
-#endif
         
         try {
             // Validar request
@@ -384,6 +297,8 @@ private:
             std::string filial = request.get("filial", "0001");
             std::string pdv = request.get("pdv", "001");
 
+            logger.info("Iniciando transação - Tipo: " + type + ", Valor: " + std::to_string(amount));
+
             // Conectar ao Scope
             LONG ret = pfnScopeOpen(const_cast<char*>("2"),
                                    const_cast<char*>(empresa.c_str()),
@@ -393,6 +308,8 @@ private:
             if (ret != 0) {
                 return createErrorResponse("Falha ao conectar ao Scope: " + std::to_string(ret));
             }
+
+            logger.info("Conectado ao Scope com sucesso");
 
             // Configurar interface de coleta
             ret = pfnScopeSetAplColeta();
@@ -407,6 +324,8 @@ private:
                 pfnScopeClose();
                 return createErrorResponse("Falha ao abrir sessão TEF: " + std::to_string(ret));
             }
+
+            logger.info("Sessão TEF aberta com sucesso");
 
             // Iniciar transação
             std::string amountStr = std::to_string(static_cast<int>(amount * 100));
@@ -429,23 +348,20 @@ private:
                 return createErrorResponse("Falha ao iniciar transação: " + std::to_string(ret));
             }
 
+            logger.info("Transação iniciada, processando...");
+
             // Processar transação
-            json result = processTransactionLoop();
+            auto result = processTransactionLoop();
             
             // Fechar conexões
             closeScope();
             
             // Adicionar métricas
-#if CPP11_AVAILABLE
             auto endTime = std::chrono::steady_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
             result.set("processingTimeMs", static_cast<int>(duration.count()));
-#else
-            DWORD endTime = GetTickCount();
-            DWORD duration = endTime - startTime;
-            result.set("processingTimeMs", static_cast<int>(duration));
-#endif
             
+            logger.info("Transação concluída em " + std::to_string(duration.count()) + "ms");
             return result;
 
         } catch (const std::exception& e) {
@@ -455,42 +371,44 @@ private:
     }
 
     json processTransactionLoop() {
-        const int maxIterations = 240; // 2 minutos com intervalos de 500ms
+        const auto maxDuration = std::chrono::minutes(2);
+        const auto pollInterval = std::chrono::milliseconds(500);
+        auto startTime = std::chrono::steady_clock::now();
         int iteration = 0;
 
-        while (iteration < maxIterations) {
+        while (std::chrono::steady_clock::now() - startTime < maxDuration) {
             LONG status = pfnScopeStatus();
+            
+            logger.debug("Status da transação: " + std::to_string(status) + " (iteração " + std::to_string(iteration) + ")");
             
             if (status == RCS_TRN_EM_ANDAMENTO) {
                 // Transação em andamento
-#if CPP11_AVAILABLE
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#else
-                Sleep(500); // Windows Sleep function
-#endif
+                std::this_thread::sleep_for(pollInterval);
                 iteration++;
                 continue;
                 
             } else if (status >= 0xFC00 && status <= 0xFCFF) {
                 // Estados de coleta
-                json collectionResult = handleCollectionState(status);
+                auto collectionResult = handleCollectionState(status);
                 if (collectionResult.get("error") != "") {
                     return collectionResult;
                 }
                 
             } else if (status == TC_IMPRIME_CUPOM) {
                 // Imprimir cupom
-                json cupomResult = handleCupomPrint();
+                auto cupomResult = handleCupomPrint();
                 if (cupomResult.get("error") != "") {
                     return cupomResult;
                 }
                 
             } else if (status == 0) {
                 // Sucesso
+                logger.info("Transação aprovada com sucesso");
                 return createSuccessResponse();
                 
             } else {
                 // Erro
+                logger.error("Erro na transação: " + std::to_string(status));
                 return createErrorResponse("Erro na transação: " + std::to_string(status));
             }
             
@@ -501,35 +419,55 @@ private:
     }
 
     json handleCollectionState(LONG status) {
-        // Implementar lógica de coleta baseada no status
-        // Por enquanto, simular aprovação automática
+        logger.info("Processando estado de coleta: " + std::to_string(status));
         
-        if (status == TC_COLETA_EXT || status == TC_COLETA_DADO_ESPECIAL) {
-            // Usar estrutura estendida
-            stPARAM_COLETA_EXT coleta;
-            std::memset(&coleta, 0, sizeof(coleta));
-            
-            LONG ret = pfnScopeGetParamExt(status, &coleta);
-            if (ret == 0) {
-                // Processar dados de coleta e enviar resposta automática
-                pfnScopeResumeParam(status, const_cast<char*>(""), 0, APP_ACAO_CONTINUAR);
+        try {
+            if (status == TC_COLETA_EXT || status == TC_COLETA_DADO_ESPECIAL) {
+                // Usar estrutura estendida
+                stPARAM_COLETA_EXT coleta;
+                std::memset(&coleta, 0, sizeof(coleta));
+                
+                LONG ret = pfnScopeGetParamExt(status, &coleta);
+                if (ret == 0) {
+                    logger.info("Coleta estendida - Mensagem Op: " + std::string(coleta.MsgOp1));
+                    logger.info("Coleta estendida - Mensagem Cl: " + std::string(coleta.MsgCl1));
+                    
+                    // Processar dados de coleta e enviar resposta automática
+                    pfnScopeResumeParam(status, const_cast<char*>(""), 0, APP_ACAO_CONTINUAR);
+                } else {
+                    logger.error("Erro ao obter parâmetros de coleta estendida: " + std::to_string(ret));
+                    return createErrorResponse("Erro na coleta estendida: " + std::to_string(ret));
+                }
+            } else {
+                // Usar estrutura normal
+                stPARAM_COLETA coleta;
+                std::memset(&coleta, 0, sizeof(coleta));
+                
+                LONG ret = pfnScopeGetParam(status, &coleta);
+                if (ret == 0) {
+                    logger.info("Coleta normal - Mensagem Op1: " + std::string(coleta.MsgOp1));
+                    logger.info("Coleta normal - Mensagem Op2: " + std::string(coleta.MsgOp2));
+                    logger.info("Coleta normal - Mensagem Cl1: " + std::string(coleta.MsgCl1));
+                    logger.info("Coleta normal - Mensagem Cl2: " + std::string(coleta.MsgCl2));
+                    
+                    // Processar dados de coleta e enviar resposta automática
+                    pfnScopeResumeParam(status, const_cast<char*>(""), 0, APP_ACAO_CONTINUAR);
+                } else {
+                    logger.error("Erro ao obter parâmetros de coleta: " + std::to_string(ret));
+                    return createErrorResponse("Erro na coleta: " + std::to_string(ret));
+                }
             }
-        } else {
-            // Usar estrutura normal
-            stPARAM_COLETA coleta;
-            std::memset(&coleta, 0, sizeof(coleta));
-            
-            LONG ret = pfnScopeGetParam(status, &coleta);
-            if (ret == 0) {
-                // Processar dados de coleta e enviar resposta automática
-                pfnScopeResumeParam(status, const_cast<char*>(""), 0, APP_ACAO_CONTINUAR);
-            }
+        } catch (const std::exception& e) {
+            logger.error("Exceção durante coleta: " + std::string(e.what()));
+            return createErrorResponse("Exceção durante coleta: " + std::string(e.what()));
         }
 
         return json(); // Continuar processamento
     }
 
     json handleCupomPrint() {
+        logger.info("Processando impressão de cupom");
+        
         char cabec[1024] = {0};
         char cpCliente[2048] = {0};
         char cpLoja[2048] = {0};
@@ -543,10 +481,12 @@ private:
                                      &nroLinhasReduz);
 
         if (ret == 0) {
+            logger.info("Cupom obtido com sucesso");
+            
             // Cupom obtido com sucesso
             pfnScopeResumeParam(TC_IMPRIME_CUPOM, const_cast<char*>(""), 0, APP_ACAO_CONTINUAR);
             
-            // Retornar dados do cupom (opcional)
+            // Retornar dados do cupom
             json cupomData;
             cupomData.set("header", std::string(cabec));
             cupomData.set("client", std::string(cpCliente));
@@ -557,6 +497,7 @@ private:
             
             return cupomData;
         } else {
+            logger.error("Erro ao obter cupom: " + std::to_string(ret));
             pfnScopeResumeParam(TC_IMPRIME_CUPOM, const_cast<char*>(""), 0, APP_ACAO_ERRO_COLETA);
             return createErrorResponse("Erro ao obter cupom: " + std::to_string(ret));
         }
@@ -566,24 +507,41 @@ private:
         try {
             BYTE desfez = 0;
             if (pfnScopeFechaSessaoTEF) {
-                pfnScopeFechaSessaoTEF(1, &desfez); // Confirmar transação
+                LONG ret = pfnScopeFechaSessaoTEF(1, &desfez); // Confirmar transação
+                logger.info("Sessão TEF fechada. Resultado: " + std::to_string(ret));
             }
             if (pfnScopeClose) {
-                pfnScopeClose();
+                LONG ret = pfnScopeClose();
+                logger.info("Conexão Scope fechada. Resultado: " + std::to_string(ret));
             }
-        } catch (...) {
-            // Ignorar erros no fechamento
+        } catch (const std::exception& e) {
+            logger.error("Erro ao fechar conexões Scope: " + std::string(e.what()));
         }
     }
 
-    bool validateRequest(const json& request) {
+    bool validateRequest(const json& request) const {
         std::string type = request.get("type");
         double amount = request.getDouble("amount");
         
-        return !type.empty() && amount > 0;
+        if (type.empty()) {
+            logger.error("Tipo de transação não informado");
+            return false;
+        }
+        
+        if (amount <= 0) {
+            logger.error("Valor inválido: " + std::to_string(amount));
+            return false;
+        }
+        
+        if (type != "credit" && type != "debit" && type != "pix") {
+            logger.error("Tipo de transação inválido: " + type);
+            return false;
+        }
+        
+        return true;
     }
 
-    json createSuccessResponse() {
+    json createSuccessResponse() const {
         json response;
         response.set("status", "success");
         response.set("approved", true);
@@ -599,28 +557,31 @@ private:
                     // NSU (exemplo de máscara - verificar documentação oficial)
                     if (pfnScopeObtemCampoExt2(handle, 0x00000001, 0, 0, ';', buffer) == 0) {
                         response.set("nsu", std::string(buffer));
+                        logger.info("NSU obtido: " + std::string(buffer));
                     }
                     
                     // Código de autorização (exemplo)
                     std::memset(buffer, 0, sizeof(buffer));
                     if (pfnScopeObtemCampoExt2(handle, 0x00000002, 0, 0, ';', buffer) == 0) {
                         response.set("authCode", std::string(buffer));
+                        logger.info("Código de autorização obtido: " + std::string(buffer));
                     }
                 }
             }
-        } catch (...) {
-            // Continuar mesmo se não conseguir obter dados adicionais
+        } catch (const std::exception& e) {
+            logger.error("Erro ao obter dados adicionais da transação: " + std::string(e.what()));
         }
         
         return response;
     }
 
-    json createErrorResponse(const std::string& message) {
+    json createErrorResponse(const std::string& message) const {
         json response;
         response.set("status", "error");
         response.set("approved", false);
         response.set("message", message);
         response.set("timestamp", getCurrentTimestamp());
+        logger.error(message);
         return response;
     }
 
@@ -633,39 +594,19 @@ private:
             FreeLibrary(hScopeDLL);
             hScopeDLL = nullptr;
         }
-        isInitialized = false;
+        isInitialized.store(false);
     }
 
-    std::string getCurrentTimestamp() {
-#if CPP11_AVAILABLE
+    std::string getCurrentTimestamp() const {
         auto now = std::chrono::system_clock::now();
         auto time_t = std::chrono::system_clock::to_time_t(now);
-        std::tm tm;
-        localtime_s(&tm, &time_t);
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now.time_since_epoch()) % 1000;
         
-        std::ostringstream oss;
-        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-        return oss.str();
-#else
-        // Fallback para compiladores sem C++11
-        time_t rawtime;
-        struct tm timeinfo;
-        char buffer[80];
-        
-        time(&rawtime);
-        localtime_s(&timeinfo, &rawtime);
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
-        
-        return std::string(buffer);
-#endif
-    }
-
-    void logInfo(const std::string& message) {
-        std::cerr << "[INFO] " << getCurrentTimestamp() << " - " << message << std::endl;
-    }
-
-    void logError(const std::string& message) {
-        std::cerr << "[ERROR] " << getCurrentTimestamp() << " - " << message << std::endl;
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&time_t), "%Y-%m-%d %H:%M:%S");
+        ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+        return ss.str();
     }
 };
 
@@ -673,11 +614,15 @@ private:
 int main(int argc, char* argv[]) {
     ScopeWrapper wrapper;
     
+    logger.info("Iniciando ScopeWrapper moderno (MinGW-w64 + C++17)...");
+    
     // Inicializar wrapper
     std::string dllPath = ".";
     if (argc > 1) {
         dllPath = argv[1];
     }
+    
+    logger.info("Caminho da DLL: " + dllPath);
     
     if (!wrapper.initialize(dllPath)) {
         json errorResponse;
@@ -687,13 +632,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    logger.info("ScopeWrapper inicializado. Aguardando comandos...");
+
     // Loop principal para processar comandos JSON
     std::string line;
     while (std::getline(std::cin, line)) {
         try {
             if (line.empty()) continue;
             
+            logger.debug("Comando recebido: " + line);
+            
             if (line == "shutdown") {
+                logger.info("Shutdown solicitado");
                 break;
             }
             
@@ -703,19 +653,22 @@ int main(int argc, char* argv[]) {
             std::string command = request.get("command");
             
             if (command == "transaction") {
-                // Para dados aninhados, seria necessário um parser mais complexo
-                // Por simplicidade, assumindo que os dados estão no nível raiz
+                logger.info("Processando transação...");
                 response = wrapper.processTransaction(request);
             } else if (command == "status") {
+                logger.debug("Verificando status...");
                 response = wrapper.getStatus();
             } else {
+                logger.error("Comando desconhecido: " + command);
                 response.set("status", "error");
                 response.set("message", "Comando desconhecido: " + command);
             }
             
             std::cout << response.toString() << std::endl;
+            logger.debug("Resposta enviada");
             
         } catch (const std::exception& e) {
+            logger.error("Erro ao processar comando: " + std::string(e.what()));
             json errorResponse;
             errorResponse.set("status", "error");
             errorResponse.set("message", "Erro ao processar comando: " + std::string(e.what()));
@@ -723,5 +676,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    logger.info("ScopeWrapper finalizando...");
     return 0;
 }
