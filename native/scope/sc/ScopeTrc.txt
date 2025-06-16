@@ -1,0 +1,89 @@
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeVersao -> ENTRADA
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeVersao -> Recebeu: VersaoScope = 3.01.23.158
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeVersao -> Recebeu: TamBufVersao = 20 (0x14)
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeVersao -> Retorno: 0 (0x0) [SUCESSO]
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeOpen -> ENTRADA
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeOpen -> Versao = 3.1.23
+11/06/2025 01:06:30 [ SCOPEAPI ]: ScopeOpen -> Ciclo = 158
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Recebeu: Modo = 2
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Recebeu: Empresa = 0053
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Recebeu: Filial = 0001
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Recebeu: PDV = 013
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Data MMAAAA = 062025
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Sistema Operacional: MS-WINDOWS 32-bits
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Criptografia: AES-128 sob RSA
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {INICIO}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {Recebeu: szTamMinDados = 01}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {FIM}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraAIDEstendido -> {INICIO}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraAIDEstendido -> {Recebeu: bAIDEstendido = S}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraAIDEstendido -> {FIM}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraContactlessModeElo -> {INICIO}
+11/06/2025 01:06:31 [  COLETA  ]: INIGetValueEx2 -> {INICIO}
+11/06/2025 01:06:31 [  COLETA  ]: INIGetValueEx2 -> {obtem o caminho completo (absoluto) do arquivo}
+11/06/2025 01:06:31 [  COLETA  ]: INIGetValueEx2 -> {Recebeu: ScopeINIPathFName = C:\totem-win\native\scope\scope.INI}
+11/06/2025 01:06:31 [  COLETA  ]: INIGetValueEx2 -> {vai chamar GetPrivateProfileSection}
+11/06/2025 01:06:31 [  COLETA  ]: INIGetValueEx2 -> {retornou de GetPrivateProfileSection}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraContactlessModeElo -> {FIM}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {INICIO}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {Recebeu: szTamMinDados = 01}
+11/06/2025 01:06:31 [  COLETA  ]: ConfiguraTamanhoMinimoDadosPinPad -> {FIM}
+11/06/2025 01:06:31 [  COLETA  ]: RecebeDadosServidor -> {INICIO}
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Retorno: 0 (0x0) [ConectaServidorScope]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeOpen -> Retorno: 0 (0x0) [SUCESSO]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeSetAplColeta -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeSetAplColeta -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 1 (0x1)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 2 (0x2)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 16 (0x10)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 8 (0x8)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 1 (0x1)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 4 (0x4)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 1 (0x1)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 64 (0x40)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 1 (0x1)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: TypeField = 20 (0x14)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: lpStructField = 0
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 32 (0x20)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Id = 512 (0x200)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Recebeu: Param = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConfigura -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: TypeField = 9 (0x9)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: lpStructField = P1
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: TypeField = 1 (0x1)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Recebeu: lpStructField = 12345698654
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeForneceCampo -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConsultaPP -> ENTRADA
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConsultaPP -> Recebeu: Configurado = ABECS
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConsultaPP -> Recebeu: UsoExclusivoScope = 0 (0x0)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConsultaPP -> Recebeu: Porta = 6 (0x6)
+11/06/2025 01:06:31 [ SCOPEAPI ]: ScopeConsultaPP -> Retorno: 0 (0x0) [RC]
+11/06/2025 01:06:32 [   INTPP  ]: ScopePPOpenSecure -> {INICIO}
+11/06/2025 01:06:32 [   INTPP  ]: ScopePPOpenSecure -> {Recebeu: TipoCanal = 1 (0x1)}
+11/06/2025 01:06:32 [   INTPP  ]: ScopePPOpenSecure -> {Recebeu: Endereco = 6}
+11/06/2025 01:06:32 [  COLETA  ]: SetIniciouPinpad -> {Recebeu: _ViaInicio = 0 (0x0)}
+11/06/2025 01:06:32 [   INTPP  ]: ScopePPOpenSecure -> {Retorno = 31 (0x1f):{RC}}

@@ -1,0 +1,141 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build active file",
+            "command": "C:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++17",
+                "-Wall",
+                "-Wextra",
+                "-mthreads",
+                "-I${workspaceFolder}/include",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "${file}",
+                "-o",
+                "${workspaceFolder}/bin/${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Task generated for MinGW in C:\\MinGW\\bin"
+        },
+        {
+            "label": "Build Scope Wrapper",
+            "type": "shell",
+            "command": "C:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "-std=c++17",
+                "-mthreads",
+                "-O2",
+                "-DNDEBUG",
+                "-I./include",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-o",
+                "./bin/scope-wrapper.exe",
+                "./src/main.cpp"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Test MinGW Installation",
+            "type": "shell",
+            "command": "C:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "--version"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Setup Project Structure",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "if not exist bin mkdir bin && if not exist include mkdir include && if not exist include\\nlohmann mkdir include\\nlohmann && if not exist lib mkdir lib && if not exist logs mkdir logs && if not exist src mkdir src && echo Estrutura do projeto criada com sucesso!"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Download nlohmann/json",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "try { Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.2/json.hpp' -OutFile './include/nlohmann/json.hpp'; Write-Host 'nlohmann/json baixado com sucesso!' -ForegroundColor Green } catch { Write-Host 'Erro no download. Usando fallback JSON.' -ForegroundColor Yellow }"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Test C++ Features",
+            "type": "shell",
+            "command": "C:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "-std=c++17",
+                "-mthreads",
+                "-x", "c++",
+                "-",
+                "-o", "./bin/test_features.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "input": "#include <iostream>\n#include <mutex>\n#include <thread>\n#include <chrono>\nint main() {\n    std::mutex m;\n    std::lock_guard<std::mutex> lock(m);\n    std::this_thread::sleep_for(std::chrono::milliseconds(1));\n    std::cout << \"C++17 features OK!\" << std::endl;\n    return 0;\n}"
+            },
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Full Build and Test",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Setup Project Structure",
+                "Test MinGW Installation", 
+                "Test C++ Features",
+                "Build Scope Wrapper"
+            ]
+        }
+    ]
+}

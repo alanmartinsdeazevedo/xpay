@@ -1,0 +1,1 @@
+.\python\python.exe -m flask --debug run --host=0.0.0.0
