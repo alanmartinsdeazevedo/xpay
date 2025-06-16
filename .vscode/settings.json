@@ -6,6 +6,10 @@
         "cstddef": "cpp",
         "string": "cpp",
         "utility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "sstream": "cpp",
+        "memory": "cpp",
+        "cstring": "cpp",
+        "atomic": "cpp"
     }
 }
