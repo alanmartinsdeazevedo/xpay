@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Modern Scope Wrapper",
+            "label": "Build Scope Wrapper",
             "type": "shell",
             "command": "g++",
             "args": [
@@ -16,7 +16,7 @@
                 "-Wall",
                 "-Wextra",
                 "-o",
-                "./bin/scope-wrapper-modern.exe",
+                "./bin/scope-wrapper.exe",
                 "./src/main.cpp"
             ],
             "group": {
@@ -35,7 +35,7 @@
             }
         },
         {
-            "label": "Build Debug Modern Scope Wrapper",
+            "label": "Build Debug Scope Wrapper",
             "type": "shell",
             "command": "g++",
             "args": [
